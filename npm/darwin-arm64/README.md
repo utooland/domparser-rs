@@ -1,3 +1,3 @@
-# `@domparser-rs/domparser-darwin-arm64`
+# `domparser-darwin-arm64`
 
-This is the **aarch64-apple-darwin** binary for `@domparser-rs/domparser`
+This is the **aarch64-apple-darwin** binary for `domparser`

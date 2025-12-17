@@ -1,6 +1,6 @@
 {
   "name": "domparser-rs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "yarn@4.3.1",
   "main": "domparser.js",
   "types": "index.d.ts",
@@ -15,7 +15,7 @@
   "napi": {
     "binaryName": "domparser",
     "package": {
-      "name": "@domparser-rs/domparser"
+      "name": "domparser"
     },
     "targets": [
       "aarch64-apple-darwin",
@@ -28,7 +28,7 @@
       "x86_64-apple-darwin",
       "universal-apple-darwin"
     ],
-    "packageName": "@domparser-rs/domparser"
+    "packageName": "domparser"
   },
   "keywords": [
     "htmlparser",
@@ -66,17 +66,17 @@
     "benchmark": "node ./benchmark/benchmark.mjs",
     "prepare": "husky install"
   },
-  "repository": "https://github.com/utooland/domparser-rs",
+  "repository": "https://github.com/utooland/domparser",
   "description": "A super fast html parser and manipulator written in rust.",
   "optionalDependencies": {
-    "@domparser-rs/domparser-darwin-arm64": "0.0.0",
-    "@domparser-rs/domparser-darwin-universal": "0.0.0",
-    "@domparser-rs/domparser-darwin-x64": "0.0.0",
-    "@domparser-rs/domparser-linux-arm64-gnu": "0.0.0",
-    "@domparser-rs/domparser-linux-arm64-musl": "0.0.0",
-    "@domparser-rs/domparser-linux-x64-gnu": "0.0.0",
-    "@domparser-rs/domparser-linux-x64-musl": "0.0.0",
-    "@domparser-rs/domparser-win32-arm64-msvc": "0.0.0",
-    "@domparser-rs/domparser-win32-x64-msvc": "0.0.0"
+    "domparser-darwin-arm64": "0.0.1",
+    "domparser-darwin-universal": "0.0.1",
+    "domparser-darwin-x64": "0.0.1",
+    "domparser-linux-arm64-gnu": "0.0.1",
+    "domparser-linux-arm64-musl": "0.0.1",
+    "domparser-linux-x64-gnu": "0.0.1",
+    "domparser-linux-x64-musl": "0.0.1",
+    "domparser-win32-arm64-msvc": "0.0.1",
+    "domparser-win32-x64-msvc": "0.0.1"
   }
 }

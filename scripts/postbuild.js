@@ -38,12 +38,12 @@ if (fs.existsSync(indexJs)) {
   
   // Ensure we are using scoped packages if not already
   // Regex: require\('domparser-([a-z0-9-]+)'\)
-  // Replacement: require('@domparser-rs/domparser-$1')
+  // Replacement: require('domparser-$1')
   
   let changed = false;
   content = content.replace(/require\('domparser-([a-z0-9-]+)'\)/g, (match, p1) => {
     changed = true;
-    return `require('@domparser-rs/domparser-${p1}')`;
+    return `require('domparser-${p1}')`;
   });
   
   if (changed) {

@@ -121,12 +121,17 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Build in docker
-        uses: addnab/docker-run-action@v3
         if: ${{ matrix.settings.docker }}
-        with:
-          image: ${{ matrix.settings.docker }}
-          options: "--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build"
-          run: ${{ matrix.settings.build }}
+        run: |
+          docker run --rm \
+            --user 0:0 \
+            -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db \
+            -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache \
+            -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            ${{ matrix.settings.docker }} \
+            /bin/sh -c "${{ matrix.settings.build }}"
       - name: Build
         run: ${{ matrix.settings.build }}
         if: ${{ !matrix.settings.docker }}
@@ -267,14 +272,13 @@ jobs:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup and run tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: node:${{ matrix.node }}-slim
-          options: "--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build"
-          run: |
-            set -e
-            yarn test
-            ls -la
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            node:${{ matrix.node }}-slim \
+            /bin/sh -c "set -e && yarn test && ls -la"
   test-linux-aarch64-musl-binding:
     name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -301,13 +305,13 @@ jobs:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup and run tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: node:lts-alpine
-          options: "--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build"
-          run: |
-            set -e
-            yarn test
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            node:lts-alpine \
+            /bin/sh -c "set -e && yarn test"
   universal-macOS:
     name: Build universal macOS binary
     needs:
@@ -326,14 +330,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-apple-darwin
-          path: artifacts
+          path: .
       - name: Download macOS arm64 artifact
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-apple-darwin
-          path: artifacts
+          path: .
       - name: Combine binaries
-        run: yarn universal
+        run: |
+          ls -R .
+          yarn universal
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -370,15 +376,15 @@ jobs:
         shell: bash
       - name: Publish
         run: |
-          # npm config set provenance true
+          npm config set provenance true
           if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
           then
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
+            npm publish --access public --provenance
           elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
           then
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public
+            npm publish --tag next --access public --provenance
           else
             echo "Not a release, skipping publish"
           fi

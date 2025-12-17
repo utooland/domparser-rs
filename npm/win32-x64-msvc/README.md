@@ -1,3 +1,3 @@
-# `@domparser-rs/domparser-win32-x64-msvc`
+# `domparser-win32-x64-msvc`
 
-This is the **x86_64-pc-windows-msvc** binary for `@domparser-rs/domparser`
+This is the **x86_64-pc-windows-msvc** binary for `domparser`

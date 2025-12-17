@@ -1,6 +1,6 @@
 {
-  "name": "@domparser-rs/domparser-darwin-universal",
-  "version": "0.0.0",
+  "name": "domparser-darwin-universal",
+  "version": "0.0.1",
   "main": "domparser.darwin-universal.node",
   "files": [
     "domparser.darwin-universal.node"
@@ -21,7 +21,7 @@
   "engines": {
     "node": ">= 10"
   },
-  "repository": "https://github.com/utooland/domparser-rs",
+  "repository": "https://github.com/utooland/domparser",
   "os": [
     "darwin"
   ]

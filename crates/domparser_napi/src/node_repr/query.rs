@@ -1,6 +1,5 @@
 use html5ever::serialize::{self, serialize, SerializeOpts};
 use html5ever::{local_name, namespace_url, ns, LocalName, Namespace};
-use indexmap::IndexMap;
 use kuchikiki::ExpandedName;
 
 use crate::serializer::serialize_text_only;

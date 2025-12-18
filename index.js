@@ -77,8 +77,8 @@ function requireNative() {
       try {
         const binding = require('domparser-android-arm64')
         const bindingPackageVersion = require('domparser-android-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -93,8 +93,8 @@ function requireNative() {
       try {
         const binding = require('domparser-android-arm-eabi')
         const bindingPackageVersion = require('domparser-android-arm-eabi/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -114,8 +114,8 @@ function requireNative() {
       try {
         const binding = require('domparser-win32-x64-gnu')
         const bindingPackageVersion = require('domparser-win32-x64-gnu/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -130,8 +130,8 @@ function requireNative() {
       try {
         const binding = require('domparser-win32-x64-msvc')
         const bindingPackageVersion = require('domparser-win32-x64-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -147,8 +147,8 @@ function requireNative() {
       try {
         const binding = require('domparser-win32-ia32-msvc')
         const bindingPackageVersion = require('domparser-win32-ia32-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -163,8 +163,8 @@ function requireNative() {
       try {
         const binding = require('domparser-win32-arm64-msvc')
         const bindingPackageVersion = require('domparser-win32-arm64-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -182,8 +182,8 @@ function requireNative() {
     try {
       const binding = require('domparser-darwin-universal')
       const bindingPackageVersion = require('domparser-darwin-universal/package.json').version
-      if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-        throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+      if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+        throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
       }
       return binding
     } catch (e) {
@@ -198,8 +198,8 @@ function requireNative() {
       try {
         const binding = require('domparser-darwin-x64')
         const bindingPackageVersion = require('domparser-darwin-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -214,8 +214,8 @@ function requireNative() {
       try {
         const binding = require('domparser-darwin-arm64')
         const bindingPackageVersion = require('domparser-darwin-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -234,8 +234,8 @@ function requireNative() {
       try {
         const binding = require('domparser-freebsd-x64')
         const bindingPackageVersion = require('domparser-freebsd-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -250,8 +250,8 @@ function requireNative() {
       try {
         const binding = require('domparser-freebsd-arm64')
         const bindingPackageVersion = require('domparser-freebsd-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -271,8 +271,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-x64-musl')
           const bindingPackageVersion = require('domparser-linux-x64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -287,8 +287,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-x64-gnu')
           const bindingPackageVersion = require('domparser-linux-x64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -305,8 +305,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-arm64-musl')
           const bindingPackageVersion = require('domparser-linux-arm64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -321,8 +321,42 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-arm64-gnu')
           const bindingPackageVersion = require('domparser-linux-arm64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          }
+          return binding
+        } catch (e) {
+          loadErrors.push(e)
+        }
+      }
+    } else if (process.arch === 'arm') {
+      if (isMusl()) {
+        try {
+          return require('./domparser.linux-arm-musleabihf.node')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+        try {
+          const binding = require('domparser-linux-arm-musleabihf')
+          const bindingPackageVersion = require('domparser-linux-arm-musleabihf/package.json').version
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          }
+          return binding
+        } catch (e) {
+          loadErrors.push(e)
+        }
+      } else {
+        try {
+          return require('./domparser.linux-arm-gnueabihf.node')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+        try {
+          const binding = require('domparser-linux-arm-gnueabihf')
+          const bindingPackageVersion = require('domparser-linux-arm-gnueabihf/package.json').version
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -339,8 +373,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-loong64-musl')
           const bindingPackageVersion = require('domparser-linux-loong64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -355,8 +389,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-loong64-gnu')
           const bindingPackageVersion = require('domparser-linux-loong64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -373,8 +407,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-riscv64-musl')
           const bindingPackageVersion = require('domparser-linux-riscv64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -389,8 +423,8 @@ function requireNative() {
         try {
           const binding = require('domparser-linux-riscv64-gnu')
           const bindingPackageVersion = require('domparser-linux-riscv64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+          if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+            throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
           return binding
         } catch (e) {
@@ -406,8 +440,8 @@ function requireNative() {
       try {
         const binding = require('domparser-linux-ppc64-gnu')
         const bindingPackageVersion = require('domparser-linux-ppc64-gnu/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -422,8 +456,8 @@ function requireNative() {
       try {
         const binding = require('domparser-linux-s390x-gnu')
         const bindingPackageVersion = require('domparser-linux-s390x-gnu/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -442,8 +476,8 @@ function requireNative() {
       try {
         const binding = require('domparser-openharmony-arm64')
         const bindingPackageVersion = require('domparser-openharmony-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -458,8 +492,8 @@ function requireNative() {
       try {
         const binding = require('domparser-openharmony-x64')
         const bindingPackageVersion = require('domparser-openharmony-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {
@@ -474,8 +508,8 @@ function requireNative() {
       try {
         const binding = require('domparser-openharmony-arm')
         const bindingPackageVersion = require('domparser-openharmony-arm/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
+        if (bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
+          throw new Error(`Native binding package version mismatch, expected 0.0.1 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
         return binding
       } catch (e) {

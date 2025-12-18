@@ -5,10 +5,23 @@ import path from "path";
 import { fileURLToPath } from "url";
 import beautify from "js-beautify";
 
-import { parse } from "../domparser.js";
+import { DOMParser } from "../domparser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+function parse(html) {
+  return new DOMParser().parseFromString(html, "text/html");
+}
+
+function getAttributes(node) {
+  const names = node.getAttributeNames();
+  const attrs = {};
+  for (const name of names) {
+    attrs[name] = node.getAttribute(name);
+  }
+  return attrs;
+}
 
 function formatHtml(html) {
   return beautify
@@ -21,7 +34,7 @@ test("should sanitise html", () => {
     '<div class="one">first</div><body>Bad body</body><div id="two">second</div>',
   );
   assert.strictEqual(
-    $.outerHtml(),
+    $.outerHTML,
     '<html><head></head><body><div class="one">first</div>Bad body<div id="two">second</div></body></html>',
   );
 });
@@ -31,7 +44,7 @@ test("should not change the original html structure", () => {
     encoding: "utf8",
   });
   const $ = parse(jqueryHtml);
-  assert.strictEqual(formatHtml($.outerHtml()), formatHtml(jqueryHtml));
+  assert.strictEqual(formatHtml($.outerHTML), formatHtml(jqueryHtml));
 });
 
 test("should select node and get attributes with ns correctly", () => {
@@ -50,13 +63,13 @@ test("should select node and get attributes with ns correctly", () => {
 </body>
 </html>
 `);
-  assert.deepStrictEqual($.select("svg").getAttributes(), {
+  assert.deepStrictEqual(getAttributes($.querySelector("svg")), {
     xmlns: "http://www.w3.org/2000/svg",
     width: "100",
     height: "100",
   });
 
-  assert.strictEqual($.select("svg").getAttribute("width"), "100");
+  assert.strictEqual($.querySelector("svg").getAttribute("width"), "100");
 });
 
 test("should select first correctly", () => {
@@ -65,7 +78,7 @@ test("should select first correctly", () => {
   );
 
   assert.strictEqual(
-    $.select(".one").select("#two").outerHtml(),
+    $.querySelector(".one").querySelector("#two").outerHTML,
     '<div id="two">second</div>',
   );
 });
@@ -76,12 +89,12 @@ test("should select all correctly", () => {
   );
 
   assert.deepStrictEqual(
-    $.selectAll("div").map((e) => e.outerHtml()),
+    $.querySelectorAll("div").map((e) => e.outerHTML),
     ['<div class="one">first</div>', '<div id="two">second</div>'],
   );
 
   assert.deepStrictEqual(
-    $.selectAll("body>*").map((e) => e.outerHtml()),
+    $.querySelectorAll("body>*").map((e) => e.outerHTML),
     ['<div class="one">first</div>', '<div id="two">second</div>'],
   );
 });
@@ -92,9 +105,9 @@ test("should get all childs correctly", () => {
   );
 
   assert.deepStrictEqual(
-    $.select("body")
-      .getChildren()
-      .map((e) => e.outerHtml()),
+    $.querySelector("body")
+      .children
+      .map((e) => e.outerHTML),
     ['<div class="one">first</div>', '<div id="two">second</div>'],
   );
 });
@@ -104,10 +117,7 @@ test("should get text correctly", () => {
     '<html><head></head><body><div class="one">first</div><div id="two">second</div></body></html>',
   );
 
-  assert.deepStrictEqual(
-    $.select("body").text()["firstsecond"],
-    undefined,
-  );
+  assert.strictEqual($.querySelector("body").textContent, "firstsecond");
 });
 
 test("should append child correctly", () => {
@@ -118,10 +128,10 @@ test("should append child correctly", () => {
     '<html><head></head><body><div id="two">second</div></body></html>',
   );
 
-  $1.select(".one").append($2.select("#two"));
+  $1.querySelector(".one").appendChild($2.querySelector("#two"));
 
   assert.strictEqual(
-    $1.select(".one").outerHtml(),
+    $1.querySelector(".one").outerHTML,
     '<div class="one">first<div id="two">second</div></div>',
   );
 });
@@ -134,10 +144,10 @@ test("should prepend child correctly", () => {
     '<html><head></head><body><div id="two">second</div></body></html>',
   );
 
-  $1.select(".one").prepend($2.select("#two"));
+  $1.querySelector(".one").prepend($2.querySelector("#two"));
 
   assert.strictEqual(
-    $1.select(".one").outerHtml(),
+    $1.querySelector(".one").outerHTML,
     '<div class="one"><div id="two">second</div>first</div>',
   );
 });
@@ -150,10 +160,10 @@ test("should insert child after correctly", () => {
     '<html><head></head><body><div id="two">second</div></body></html>',
   );
 
-  $1.select(".one").after($2.select("#two"));
+  $1.querySelector(".one").after($2.querySelector("#two"));
 
   assert.strictEqual(
-    $1.select("body").outerHtml(),
+    $1.querySelector("body").outerHTML,
     '<body><div class="one">first</div><div id="two">second</div><div>three</div></body>',
   );
 });
@@ -166,10 +176,10 @@ test("should insert child before correctly", () => {
     '<html><head></head><body><div id="two">second</div></body></html>',
   );
 
-  $1.select(".one").before($2.select("#two"));
+  $1.querySelector(".one").before($2.querySelector("#two"));
 
   assert.strictEqual(
-    $1.select("body").outerHtml(),
+    $1.querySelector("body").outerHTML,
     '<body><div id="two">second</div><div class="one">first</div><div>three</div></body>',
   );
 });
@@ -179,10 +189,10 @@ test("should remove node correctly", () => {
     '<html><head></head><body><div class="one">first<div>second</div></div><div>three</div></body></html>',
   );
 
-  $.select(".one").remove();
+  $.querySelector(".one").remove();
 
   assert.strictEqual(
-    $.select("body").outerHtml(),
+    $.querySelector("body").outerHTML,
     "<body><div>three</div></body>",
   );
 });
@@ -192,9 +202,9 @@ test("should set attribute correctly", () => {
     '<html><head></head><body><div class="one">first</div></body></html>',
   );
 
-  $.select(".one").setAttribute("id", "Hello");
+  $.querySelector(".one").setAttribute("id", "Hello");
 
-  assert.deepStrictEqual($.select(".one").getAttribute("id"), "Hello");
+  assert.deepStrictEqual($.querySelector(".one").getAttribute("id"), "Hello");
 });
 
 test("should remove attribute correctly", () => {
@@ -202,9 +212,9 @@ test("should remove attribute correctly", () => {
     '<html><head></head><body><div class="one" id="Hello">first</div></body></html>',
   );
 
-  $.select(".one").removeAttribute("class");
+  $.querySelector(".one").removeAttribute("class");
 
-  assert.deepStrictEqual($.select("#Hello").getAttributes(), {
+  assert.deepStrictEqual(getAttributes($.querySelector("#Hello")), {
     id: "Hello",
   });
 });
@@ -215,22 +225,22 @@ test("should clone correctly", () => {
   );
 
   assert.strictEqual(
-    $.select(".one").clone().outerHtml(),
+    $.querySelector(".one").cloneNode(false).outerHTML,
     '<div class="one"></div>',
   );
   assert.strictEqual(
-    $.select(".one").cloneRecursive().outerHtml(),
+    $.querySelector(".one").cloneNode(true).outerHTML,
     '<div class="one">first</div>',
   );
 
-  const $cloned = $.select(".one").cloneRecursive();
-  $cloned.select(".one").getChildren()[0].remove();
+  const $cloned = $.querySelector(".one").cloneNode(true);
+  $cloned.childNodes[0].remove();
   assert.strictEqual(
-    $cloned.select(".one").outerHtml(),
+    $cloned.outerHTML,
     '<div class="one"></div>',
   );
   assert.strictEqual(
-    $.select(".one").outerHtml(),
+    $.querySelector(".one").outerHTML,
     '<div class="one">first</div>',
   );
 });

@@ -15,6 +15,15 @@ generatedFiles.forEach(file => {
   }
 });
 
+// Move .node files
+const files = fs.readdirSync(crateDir);
+files.filter(f => f.endsWith('.node')).forEach(file => {
+  const src = path.join(crateDir, file);
+  const dest = path.join(rootDir, file);
+  console.log(`Moving ${file} to root...`);
+  fs.renameSync(src, dest);
+});
+
 // 1. Patch index.d.ts
 const patchFile = path.join(rootDir, 'patch.d.ts');
 const indexDts = path.join(rootDir, 'index.d.ts');

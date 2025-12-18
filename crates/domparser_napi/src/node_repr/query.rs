@@ -27,10 +27,30 @@ impl NodeRepr {
   ///
   #[napi]
   pub fn get_attribute(&self, name: String) -> Option<String> {
-    self
-      .0
-      .as_element()
-      .and_then(|e| e.attributes.borrow().get(name).map(|v| v.to_string()))
+    self.0.as_element().and_then(|e| {
+      let attrs = e.attributes.borrow();
+      if let Some(val) = attrs.get(name.as_str()) {
+        return Some(val.to_string());
+      }
+
+      // Fallback: search by qualified name
+      for (key, attr) in attrs.map.iter() {
+        let qname = if let Some(prefix) = &attr.prefix {
+          if prefix.is_empty() {
+            key.local.to_string()
+          } else {
+            format!("{}:{}", prefix, key.local)
+          }
+        } else {
+          key.local.to_string()
+        };
+
+        if qname == name {
+          return Some(attr.value.to_string());
+        }
+      }
+      None
+    })
   }
 
   #[napi(js_name = "getAttributeNames")]
@@ -39,8 +59,18 @@ impl NodeRepr {
       e.attributes
         .borrow()
         .map
-        .keys()
-        .map(|expanded_name| expanded_name.local.to_string())
+        .iter()
+        .map(|(key, attr)| {
+          if let Some(prefix) = &attr.prefix {
+            if prefix.is_empty() {
+              key.local.to_string()
+            } else {
+              format!("{}:{}", prefix, key.local)
+            }
+          } else {
+            key.local.to_string()
+          }
+        })
         .collect()
     })
   }

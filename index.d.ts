@@ -153,7 +153,5 @@ export declare class NodeRepr {
   cloneNode(deep?: boolean | undefined | null): NodeRepr
 }
 
-export declare class DOMParser {
-  parseFromString(string: string, mimeType: string): NodeRepr;
-}
-
+/** Parse string input to a html tree, return the root node. */
+export declare function parse(html: string): NodeRepr

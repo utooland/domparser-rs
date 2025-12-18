@@ -105,26 +105,12 @@ export declare class NodeRepr {
   datasetGet(): Record<string, string>
   datasetSet(key: string, value: string): void
   datasetRemove(key: string): void
-  /** Select the the fist node that match the given css selector, like document.querySelector. */
-  select(selectors: string): NodeRepr | null
-  /** Select all nodes that match the given css selector, like document.querySelectorAll. */
-  selectAll(selectors: string): Array<NodeRepr>
-  /** Get all children nodes of this node. */
-  getChildren(): Array<NodeRepr>
   /** Get attribute value of this node by given name. */
   getAttribute(name: string): string | null
-  /** Get attributes K-V object of this node. */
-  getAttributes(): Record<string, string>
   getAttributeNames(): Array<string>
   hasAttributes(): boolean
   hasChildNodes(): boolean
   compareDocumentPosition(other: NodeRepr): number
-  /** Get the serialized html of this node, including its all descendants and itelf. */
-  outerHtml(): string
-  /** Get the serialized html of this node, only including its all descendants. */
-  innerHtml(): string
-  /** Get all text nodes content of this node, including its all descendants and itelf. */
-  text(): string
   querySelector(selectors: string): NodeRepr | null
   querySelectorAll(selectors: string): Array<NodeRepr>
   getAttribute(name: string): string | null
@@ -165,12 +151,5 @@ export declare class NodeRepr {
   get documentPositionContains(): number
   get documentPositionContainedBy(): number
   get documentPositionImplementationSpecific(): number
-  /** Clone this node to a new instance, not clone its descendants. */
-  clone(): NodeRepr
-  /** Clone this node to a new instance, including its all descendants. */
-  cloneRecursive(): NodeRepr
   cloneNode(deep?: boolean | undefined | null): NodeRepr
 }
-
-/** Parse string input to a html tree, return the root node. */
-export declare function parse(html: string): NodeRepr

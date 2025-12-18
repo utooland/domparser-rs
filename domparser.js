@@ -93,7 +93,6 @@ class DOMParser {
 }
 
 module.exports = {
-  parse,
   NodeRepr,
   DOMParser
 };

@@ -118,7 +118,6 @@ impl NodeRepr {
 impl NodeRepr {
   /// Clone this node to a new instance, not clone its descendants.
   ///
-  #[napi(js_name = "clone")]
   pub fn clone_self_only(&self) -> NodeRepr {
     let new_node_ref = NodeRef::new(self.0.data().clone());
     NodeRepr::from(new_node_ref)
@@ -126,7 +125,6 @@ impl NodeRepr {
 
   /// Clone this node to a new instance, including its all descendants.
   ///
-  #[napi]
   pub fn clone_recursive(&self) -> NodeRepr {
     NodeRepr::from(clone_node_ref_recursive(&self.0))
   }

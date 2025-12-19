@@ -1,6 +1,6 @@
 {
   "name": "domparser-rs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "packageManager": "yarn@4.3.1",
   "main": "domparser.js",
   "types": "domparser.d.ts",
@@ -68,7 +68,7 @@
     "benchmark": "node ./benchmark/benchmark.mjs",
     "prepare": "husky install"
   },
-  "repository": "https://github.com/utooland/domparser",
+  "repository": "https://github.com/utooland/domparser-rs",
   "description": "A super fast html parser and manipulator written in rust.",
   "optionalDependencies": {
     "domparser-darwin-arm64": "0.0.1",

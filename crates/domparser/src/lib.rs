@@ -4,11 +4,11 @@ use markup5ever_rcdom::{Node, NodeData, RcDom};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub mod serializer;
 pub mod node;
+pub mod serializer;
 
-pub use node::DomNode;
 pub use markup5ever_rcdom;
+pub use node::DomNode;
 
 pub fn parse(html: String) -> DomNode {
   let dom = parse_document(RcDom::default(), Default::default())

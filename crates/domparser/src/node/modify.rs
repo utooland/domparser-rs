@@ -250,11 +250,7 @@ impl DomNode {
     DomNode(external_node.0.clone())
   }
 
-  pub fn replace_child(
-    &self,
-    new_child: &DomNode,
-    old_child: &DomNode,
-  ) -> Result<DomNode, String> {
+  pub fn replace_child(&self, new_child: &DomNode, old_child: &DomNode) -> Result<DomNode, String> {
     let parent = super::get_parent(&old_child.0);
     if let Some(parent) = parent {
       if Rc::ptr_eq(&parent, &self.0) {
@@ -268,9 +264,7 @@ impl DomNode {
         }
       }
     }
-    Err(
-      "The node to be replaced is not a child of this node.".to_string(),
-    )
+    Err("The node to be replaced is not a child of this node.".to_string())
   }
 
   pub fn replace_with(&self, new_node: &DomNode) {

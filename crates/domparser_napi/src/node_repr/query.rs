@@ -9,7 +9,12 @@ impl NodeRepr {
 
   #[napi]
   pub fn select_all(&self, selectors: String) -> Vec<NodeRepr> {
-    self.0.select_all(selectors).into_iter().map(NodeRepr).collect()
+    self
+      .0
+      .select_all(selectors)
+      .into_iter()
+      .map(NodeRepr)
+      .collect()
   }
 
   #[napi]
@@ -54,7 +59,12 @@ impl NodeRepr {
 
   #[napi(js_name = "querySelectorAll")]
   pub fn query_selector_all(&self, selectors: String) -> Vec<NodeRepr> {
-    self.0.query_selector_all(selectors).into_iter().map(NodeRepr).collect()
+    self
+      .0
+      .query_selector_all(selectors)
+      .into_iter()
+      .map(NodeRepr)
+      .collect()
   }
 
   #[napi(js_name = "hasAttribute")]
@@ -84,12 +94,22 @@ impl NodeRepr {
 
   #[napi(js_name = "getElementsByClassName")]
   pub fn get_elements_by_class_name(&self, class_names: String) -> Vec<NodeRepr> {
-    self.0.get_elements_by_class_name(class_names).into_iter().map(NodeRepr).collect()
+    self
+      .0
+      .get_elements_by_class_name(class_names)
+      .into_iter()
+      .map(NodeRepr)
+      .collect()
   }
 
   #[napi(js_name = "getElementsByTagName")]
   pub fn get_elements_by_tag_name(&self, tag_name: String) -> Vec<NodeRepr> {
-    self.0.get_elements_by_tag_name(tag_name).into_iter().map(NodeRepr).collect()
+    self
+      .0
+      .get_elements_by_tag_name(tag_name)
+      .into_iter()
+      .map(NodeRepr)
+      .collect()
   }
 
   #[napi]

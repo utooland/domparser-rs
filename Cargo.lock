@@ -53,6 +53,18 @@ dependencies = [
  "indexmap",
  "markup5ever 0.11.0",
  "markup5ever_rcdom",
+ "tendril",
+]
+
+[[package]]
+name = "domparser_napi"
+version = "0.0.0"
+dependencies = [
+ "domparser",
+ "html5ever",
+ "indexmap",
+ "markup5ever 0.11.0",
+ "markup5ever_rcdom",
  "napi",
  "napi-build",
  "napi-derive",

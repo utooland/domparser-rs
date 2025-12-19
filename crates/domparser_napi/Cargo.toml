@@ -1,12 +1,13 @@
 [package]
 edition = "2021"
-name    = "domparser"
+name    = "domparser_napi"
 version = "0.0.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
+domparser = { path = "../domparser" }
 html5ever         = { workspace = true }
 indexmap          = { workspace = true }
 markup5ever       = "0.11.0"

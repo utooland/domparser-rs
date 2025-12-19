@@ -1,7 +1,7 @@
 use markup5ever_rcdom::{Handle, NodeData};
 use std::io::{Result, Write};
 
-pub(crate) fn serialize_text_only<Wr: Write>(handle: &Handle, writer: &mut Wr) -> Result<()> {
+pub fn serialize_text_only<Wr: Write>(handle: &Handle, writer: &mut Wr) -> Result<()> {
   match &handle.data {
     NodeData::Text { contents } => {
       writer.write_all(contents.borrow().as_bytes())?;

@@ -58,9 +58,9 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release --package domparser --js index.js",
+    "build": "napi build --platform --release --package domparser_napi --js index.js",
     "postbuild": "node scripts/postbuild.js",
-    "build:debug": "napi build --platform --package domparser --js index.js && node scripts/postbuild.js",
+    "build:debug": "napi build --platform --package domparser_napi --js index.js && node scripts/postbuild.js",
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universalize",
     "version": "napi version",

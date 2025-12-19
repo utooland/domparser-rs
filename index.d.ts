@@ -114,6 +114,10 @@ export declare class NodeRepr {
   closest(selectors: string): NodeRepr | null
   /** The node object, cann't be instantiated in javascript. So call the constructor will throw an error. */
   constructor(): void
+  /** Clone this node to a new instance, not clone its descendants. */
+  cloneSelfOnly(): NodeRepr
+  /** Clone this node to a new instance, including its all descendants. */
+  cloneRecursive(): NodeRepr
   cloneNode(deep?: boolean | undefined | null): NodeRepr
 }
 

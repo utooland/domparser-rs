@@ -63,7 +63,7 @@
     "build:debug": "napi build --platform --package domparser_napi --js index.js && node scripts/postbuild.js",
     "prepublishOnly": "napi prepublish -t npm",
     "universal": "napi universalize",
-    "version": "napi version",
+    "version": "napi version && node scripts/sync-version.js && git add crates/domparser/Cargo.toml",
     "test": "node --test",
     "benchmark": "node ./benchmark/benchmark.mjs",
     "prepare": "husky install"

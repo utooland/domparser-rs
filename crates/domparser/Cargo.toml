@@ -1,10 +1,10 @@
 [package]
-edition = "2021"
-name    = "domparser"
-version = "0.0.4"
+edition     = "2021"
+name        = "domparser"
+version     = "0.0.4"
 description = "A super fast html parser and manipulator written in rust."
-license = "MIT"
-repository = "https://github.com/utooland/domparser-rs"
+license     = "MIT"
+repository  = "https://github.com/utooland/domparser-rs"
 
 [dependencies]
 html5ever         = "0.27.0"

@@ -1,6 +1,6 @@
 {
   "name": "domparser-rs",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "packageManager": "yarn@4.3.1",
   "main": "domparser.js",
   "types": "domparser.d.ts",

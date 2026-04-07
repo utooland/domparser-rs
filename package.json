@@ -60,7 +60,7 @@
     "build": "napi build --platform --release --package domparser_napi --js index.js",
     "postbuild": "node scripts/postbuild.js",
     "build:debug": "napi build --platform --package domparser_napi --js index.js && node scripts/postbuild.js",
-    "prepublishOnly": "napi prepublish -t npm",
+    "prepublishOnly": "napi prepublish -t npm --skip-optional-publish",
     "test": "node --test",
     "benchmark": "node ./benchmark/benchmark.mjs",
     "prepare": "husky install"

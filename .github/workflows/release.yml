@@ -341,14 +341,20 @@ jobs:
           npm config set provenance true
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           TAG_NAME="${{ github.event.release.tag_name }}"
-          # Determine npm tag: prerelease versions get "next", stable gets "latest"
           if echo "$TAG_NAME" | grep -qE "^v?[0-9]+\.[0-9]+\.[0-9]+$"; then
-            echo "Publishing stable release: $TAG_NAME"
-            npm publish --access public --provenance
+            NPM_TAG="latest"
           else
-            echo "Publishing prerelease: $TAG_NAME"
-            npm publish --tag next --access public --provenance
+            NPM_TAG="next"
           fi
+          # Publish platform-specific sub-packages first
+          for dir in npm/*/; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Publishing $dir..."
+              npm publish "$dir" --access public --provenance --tag $NPM_TAG || true
+            fi
+          done
+          # Publish root package
+          npm publish --access public --provenance --tag $NPM_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

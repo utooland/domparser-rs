@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import pkg from '../domparser.js';
 const { DOMParser } = pkg;
 
-test('select and selectAll', () => {
+test('querySelector with simple selectors', () => {
   const doc = new DOMParser().parseFromString(`
     <div id="root">
       <div class="a">
@@ -21,33 +21,99 @@ test('select and selectAll', () => {
   `, 'text/html');
 
   const root = doc.getElementById('root');
-  
-  // select (find first descendant)
-  const firstSpan = root.select('.b');
-  assert.strictEqual(firstSpan.textContent, '1');
 
-  const firstDivA = root.select('.a');
-  assert.strictEqual(firstDivA.select('.b').textContent, '1');
-
-  // selectAll (find all descendants)
-  const allSpans = root.selectAll('.b');
-  assert.strictEqual(allSpans.length, 3);
-  assert.strictEqual(allSpans[0].textContent, '1');
-  assert.strictEqual(allSpans[1].textContent, '2');
-  assert.strictEqual(allSpans[2].textContent, '3');
-
-  const allDivs = root.selectAll('.a');
-  assert.strictEqual(allDivs.length, 2);
-
-  // Nested selection
-  const nested = root.select('.c .d');
-  assert.strictEqual(nested.textContent, '4');
-  
-  const nestedAll = root.selectAll('.a .b');
-  assert.strictEqual(nestedAll.length, 3);
+  // By class
+  assert.strictEqual(root.querySelector('.b').textContent, '1');
+  // By tag
+  assert.strictEqual(root.querySelector('span').textContent, '1');
+  // By id
+  assert.strictEqual(doc.querySelector('#root').tagName, 'DIV');
+  // Scoped query
+  assert.strictEqual(root.querySelector('.a').querySelector('.b').textContent, '1');
+  // Returns null when not found
+  assert.strictEqual(root.querySelector('.nonexistent'), null);
 });
 
-test('matches and closest', () => {
+test('querySelectorAll with simple selectors', () => {
+  const doc = new DOMParser().parseFromString(`
+    <div id="root">
+      <div class="a"><span class="b">1</span><span class="b">2</span></div>
+      <div class="a"><span class="b">3</span></div>
+    </div>
+  `, 'text/html');
+
+  const root = doc.getElementById('root');
+
+  assert.strictEqual(root.querySelectorAll('.b').length, 3);
+  assert.strictEqual(root.querySelectorAll('.a').length, 2);
+  assert.strictEqual(root.querySelectorAll('.nonexistent').length, 0);
+});
+
+test('querySelector with descendant combinator', () => {
+  const doc = new DOMParser().parseFromString(`
+    <div id="root">
+      <div class="a">
+        <span class="b">1</span>
+      </div>
+      <div class="c">
+        <span class="d">4</span>
+      </div>
+    </div>
+  `, 'text/html');
+
+  const root = doc.getElementById('root');
+
+  // Descendant combinator (space)
+  const nested = root.querySelector('.c .d');
+  assert.strictEqual(nested.textContent, '4');
+
+  // Multi-level descendant
+  assert.strictEqual(doc.querySelector('#root .a .b').textContent, '1');
+
+  // querySelectorAll with descendant combinator
+  assert.strictEqual(root.querySelectorAll('.a .b').length, 1);
+});
+
+test('querySelector with child combinator (>)', () => {
+  const doc = new DOMParser().parseFromString(`
+    <div id="root">
+      <div class="parent">
+        <span class="child">direct</span>
+        <div class="nested">
+          <span class="child">nested</span>
+        </div>
+      </div>
+    </div>
+  `, 'text/html');
+
+  // body>* should match direct children of body
+  const bodyChildren = doc.querySelectorAll('body>*');
+  assert.strictEqual(bodyChildren.length, 1);
+  assert.strictEqual(bodyChildren[0].id, 'root');
+
+  // Child combinator: .parent > .child should match only direct children
+  const root = doc.getElementById('root');
+  const directChild = root.querySelector('.parent>.child');
+  assert.strictEqual(directChild.textContent, 'direct');
+});
+
+test('querySelector with universal selector (*)', () => {
+  const doc = new DOMParser().parseFromString(`
+    <div id="root"><span>a</span><em>b</em></div>
+  `, 'text/html');
+
+  const root = doc.getElementById('root');
+
+  // * matches any element
+  const all = root.querySelectorAll('*');
+  assert.strictEqual(all.length, 2);
+
+  // #root > * matches direct element children
+  const directChildren = doc.querySelectorAll('#root>*');
+  assert.strictEqual(directChildren.length, 2);
+});
+
+test('matches with combinators', () => {
   const doc = new DOMParser().parseFromString(`
     <div id="grandparent" class="ancestor">
       <div id="parent" class="ancestor">
@@ -57,38 +123,70 @@ test('matches and closest', () => {
   `, 'text/html');
 
   const child = doc.getElementById('child');
-  const parent = doc.getElementById('parent');
-  const grandparent = doc.getElementById('grandparent');
 
-  // matches
+  // Simple selectors
   assert.strictEqual(child.matches('#child'), true);
   assert.strictEqual(child.matches('.target'), true);
   assert.strictEqual(child.matches('div'), true);
   assert.strictEqual(child.matches('#parent'), false);
-  assert.strictEqual(child.matches('.ancestor'), false);
-  
-  // matches with ancestor combinator
+
+  // Descendant combinator
   assert.strictEqual(child.matches('#parent #child'), true);
   assert.strictEqual(child.matches('.ancestor .target'), true);
   assert.strictEqual(child.matches('#grandparent #child'), true);
   assert.strictEqual(child.matches('#grandparent #parent #child'), true);
 
-  // closest
-  const closestAncestor = child.closest('.ancestor');
-  assert.strictEqual(closestAncestor.id, 'parent');
+  // Child combinator
+  assert.strictEqual(child.matches('#parent>#child'), true);
+  assert.strictEqual(child.matches('#grandparent>#child'), false); // not direct child
 
-  const closestDiv = child.closest('div');
-  assert.strictEqual(closestDiv.id, 'child');
+  // Universal selector
+  assert.strictEqual(child.matches('*'), true);
+  assert.strictEqual(child.matches('#parent>*'), true);
+});
 
-  const closestGrandparent = child.closest('#grandparent');
-  assert.strictEqual(closestGrandparent.id, 'grandparent');
+test('closest with combinators', () => {
+  const doc = new DOMParser().parseFromString(`
+    <div id="grandparent" class="ancestor">
+      <div id="parent" class="ancestor">
+        <div id="child" class="target"></div>
+      </div>
+    </div>
+  `, 'text/html');
 
-  const noMatch = child.closest('.non-existent');
-  assert.strictEqual(noMatch, null);
-  
-  // closest with complex selector
-  const closestComplex = child.closest('#grandparent .ancestor');
-  assert.strictEqual(closestComplex.id, 'parent');
+  const child = doc.getElementById('child');
+
+  assert.strictEqual(child.closest('.ancestor').id, 'parent');
+  assert.strictEqual(child.closest('div').id, 'child');
+  assert.strictEqual(child.closest('#grandparent').id, 'grandparent');
+  assert.strictEqual(child.closest('.non-existent'), null);
+  assert.strictEqual(child.closest('#grandparent .ancestor').id, 'parent');
+});
+
+test('non-standard APIs are not exported', () => {
+  // Only DOMParser should be exported
+  assert.strictEqual(typeof pkg.DOMParser, 'function');
+  assert.strictEqual(pkg.parse, undefined);
+  assert.strictEqual(pkg.NodeRepr, undefined);
+
+  // Non-standard methods should not exist on nodes
+  const doc = new DOMParser().parseFromString('<div>hello</div>', 'text/html');
+  const div = doc.querySelector('div');
+  assert.strictEqual(typeof div.select, 'undefined');
+  assert.strictEqual(typeof div.selectAll, 'undefined');
+  assert.strictEqual(typeof div.outerHtml, 'undefined');
+  assert.strictEqual(typeof div.innerHtml, 'undefined');
+  assert.strictEqual(typeof div.text, 'undefined');
+  assert.strictEqual(typeof div.cloneSelfOnly, 'undefined');
+  assert.strictEqual(typeof div.cloneRecursive, 'undefined');
+
+  // Standard APIs should exist
+  assert.strictEqual(typeof div.querySelector, 'function');
+  assert.strictEqual(typeof div.querySelectorAll, 'function');
+  assert.strictEqual(typeof div.cloneNode, 'function');
+  assert.strictEqual(typeof div.outerHTML, 'string');
+  assert.strictEqual(typeof div.innerHTML, 'string');
+  assert.strictEqual(typeof div.textContent, 'string');
 });
 
 test('isDefaultNamespace', () => {

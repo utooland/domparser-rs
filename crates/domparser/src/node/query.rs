@@ -7,37 +7,6 @@ use std::rc::Rc;
 use super::DomNode;
 
 impl DomNode {
-  pub fn select(&self, selectors: String) -> Option<DomNode> {
-    fn find(node: &DomNode, selectors: &str) -> Option<DomNode> {
-      for child in node.0.children.borrow().iter() {
-        let child_dom = DomNode(child.clone());
-        if child_dom.matches(selectors.to_string()) {
-          return Some(child_dom);
-        }
-        if let Some(found) = find(&child_dom, selectors) {
-          return Some(found);
-        }
-      }
-      None
-    }
-    find(self, &selectors)
-  }
-
-  pub fn select_all(&self, selectors: String) -> Vec<DomNode> {
-    fn find_all(node: &DomNode, selectors: &str, results: &mut Vec<DomNode>) {
-      for child in node.0.children.borrow().iter() {
-        let child_dom = DomNode(child.clone());
-        if child_dom.matches(selectors.to_string()) {
-          results.push(child_dom.clone());
-        }
-        find_all(&child_dom, selectors, results);
-      }
-    }
-    let mut results = Vec::new();
-    find_all(self, &selectors, &mut results);
-    results
-  }
-
   pub fn get_attribute(&self, name: String) -> Option<String> {
     if let NodeData::Element { attrs, .. } = &self.0.data {
       let attributes = attrs.borrow();
@@ -132,45 +101,34 @@ impl DomNode {
   }
 
   pub fn query_selector(&self, selectors: String) -> Option<DomNode> {
-    let selectors = selectors.trim();
-    if let Some(stripped) = selectors.strip_prefix('#') {
-      self.get_element_by_id(stripped.to_string())
-    } else if let Some(stripped) = selectors.strip_prefix('.') {
-      self
-        .get_elements_by_class_name(stripped.to_string())
-        .first()
-        .cloned()
-    } else {
-      self
-        .get_elements_by_tag_name(selectors.to_string())
-        .first()
-        .cloned()
+    fn find(node: &DomNode, selectors: &str) -> Option<DomNode> {
+      for child in node.0.children.borrow().iter() {
+        let child_dom = DomNode(child.clone());
+        if child_dom.matches(selectors.to_string()) {
+          return Some(child_dom);
+        }
+        if let Some(found) = find(&child_dom, selectors) {
+          return Some(found);
+        }
+      }
+      None
     }
+    find(self, &selectors)
   }
 
   pub fn query_selector_all(&self, selectors: String) -> Vec<DomNode> {
-    let selectors = selectors.trim();
-    if let Some(stripped) = selectors.strip_prefix('#') {
-      self
-        .get_element_by_id(stripped.to_string())
-        .map(|n| vec![n])
-        .unwrap_or_default()
-    } else if let Some(stripped) = selectors.strip_prefix('.') {
-      self.get_elements_by_class_name(stripped.to_string())
-    } else if selectors == "body>*" {
-      if let Some(body) = self.body() {
-        let mut results = Vec::new();
-        for child in body.0.children.borrow().iter() {
-          if let NodeData::Element { .. } = &child.data {
-            results.push(DomNode(child.clone()));
-          }
+    fn find_all(node: &DomNode, selectors: &str, results: &mut Vec<DomNode>) {
+      for child in node.0.children.borrow().iter() {
+        let child_dom = DomNode(child.clone());
+        if child_dom.matches(selectors.to_string()) {
+          results.push(child_dom.clone());
         }
-        return results;
+        find_all(&child_dom, selectors, results);
       }
-      vec![]
-    } else {
-      self.get_elements_by_tag_name(selectors.to_string())
     }
+    let mut results = Vec::new();
+    find_all(self, &selectors, &mut results);
+    results
   }
 
   pub fn has_attribute(&self, name: String) -> bool {
@@ -377,6 +335,12 @@ impl DomNode {
   }
 
   fn matches_simple_selector(&self, selector: &str) -> bool {
+    if selector == "*" {
+      if let NodeData::Element { .. } = &self.0.data {
+        return true;
+      }
+      return false;
+    }
     if let Some(id) = selector.strip_prefix('#') {
       return self.get_attribute("id".to_string()).as_deref() == Some(id);
     }
@@ -393,32 +357,104 @@ impl DomNode {
     false
   }
 
+  /// Tokenize a CSS selector into (simple_selector, combinator) segments.
+  /// Supported combinators: ' ' (descendant) and '>' (child).
+  /// Returns a list of (selector, combinator) pairs, where combinator is either
+  /// ' ' or '>', read right-to-left.
+  fn tokenize_selector(selectors: &str) -> Vec<(&str, char)> {
+    let mut tokens: Vec<(&str, char)> = Vec::new();
+    let mut rest = selectors.trim();
+
+    loop {
+      if rest.is_empty() {
+        break;
+      }
+
+      // Find the last combinator (> or whitespace)
+      let mut split_pos = None;
+      let mut combinator = ' ';
+      let bytes = rest.as_bytes();
+      let mut i = bytes.len();
+
+      // Walk backwards to find the rightmost combinator
+      while i > 0 {
+        i -= 1;
+        if bytes[i] == b'>' {
+          split_pos = Some(i);
+          combinator = '>';
+          break;
+        } else if bytes[i] == b' ' || bytes[i] == b'\t' {
+          // Check if this is a space combinator (not next to >)
+          let left = rest[..i].trim_end();
+          let right = rest[i + 1..].trim_start();
+          if !left.is_empty()
+            && !right.is_empty()
+            && !left.ends_with('>')
+            && !right.starts_with('>')
+          {
+            split_pos = Some(i);
+            combinator = ' ';
+            break;
+          }
+        }
+      }
+
+      match split_pos {
+        Some(pos) => {
+          let selector = rest[pos + 1..].trim();
+          if !selector.is_empty() {
+            tokens.push((selector, combinator));
+          }
+          rest = rest[..pos].trim();
+        }
+        None => {
+          // No more combinators; this is the leftmost selector
+          tokens.push((rest, ' '));
+          break;
+        }
+      }
+    }
+
+    tokens
+  }
+
   pub fn matches(&self, selectors: String) -> bool {
     let selectors = selectors.trim();
-    let parts: Vec<&str> = selectors.split_whitespace().collect();
+    let tokens = Self::tokenize_selector(selectors);
 
-    if parts.is_empty() {
+    if tokens.is_empty() {
       return false;
     }
 
-    if !self.matches_simple_selector(parts.last().unwrap()) {
+    // tokens[0] is the rightmost (target) selector
+    if !self.matches_simple_selector(tokens[0].0) {
       return false;
     }
 
-    if parts.len() == 1 {
+    if tokens.len() == 1 {
       return true;
     }
 
     let mut current_ancestor = super::get_parent(&self.0).map(DomNode);
-    let mut part_idx = parts.len() - 2;
+    let mut token_idx = 1;
+    // The combinator that constrains the relationship is from the token
+    // we just matched (the right/child side), not the next token to match.
+    let mut active_combinator = tokens[0].1;
 
     while let Some(node) = current_ancestor {
-      if node.matches_simple_selector(parts[part_idx]) {
-        if part_idx == 0 {
+      let (selector, _) = tokens[token_idx];
+
+      if node.matches_simple_selector(selector) {
+        token_idx += 1;
+        if token_idx >= tokens.len() {
           return true;
         }
-        part_idx -= 1;
+        active_combinator = tokens[token_idx - 1].1;
+      } else if active_combinator == '>' {
+        // Child combinator requires direct parent match; it didn't match
+        return false;
       }
+      // For descendant combinator (' '), keep walking up
       current_ancestor = super::get_parent(&node.0).map(DomNode);
     }
 

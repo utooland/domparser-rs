@@ -1,6 +1,6 @@
 {
   "name": "domparser-linux-arm64-gnu",
-  "version": "0.0.5",
+  "version": "0.0.0",
   "cpu": [
     "arm64"
   ],

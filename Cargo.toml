@@ -4,12 +4,12 @@ members  = ["crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
-html5ever = "0.27.0"
-indexmap  = "2.2.6"
+html5ever = "0.38.0"
+indexmap  = "2.13.1"
 
 [profile.release]
 codegen-units = 1
 lto           = "fat"
-opt-level     = 3
+opt-level     = "z"
 panic         = "abort"
 strip         = "symbols"

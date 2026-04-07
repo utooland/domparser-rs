@@ -14,4 +14,4 @@ napi        = { version = "3.0.0", default-features = false, features = ["napi4"
 napi-derive = "3.0.0"
 
 [build-dependencies]
-napi-build = "2.1.4"
+napi-build = "2.3.1"

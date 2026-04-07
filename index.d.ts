@@ -89,7 +89,7 @@ export declare class NodeRepr {
   /** Returns or sets the value of the current node. */
   get nodeValue(): string | null
   /** Returns or sets the value of the current node. */
-  set nodeValue(value?: string | undefined | null)
+  set nodeValue(value: string | undefined | null)
   /** Returns the target of the processing instruction. */
   get target(): string | null
   /** Returns the name of the attribute. */

@@ -27,5 +27,8 @@
   "repository": "https://github.com/utooland/domparser-rs",
   "os": [
     "win32"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

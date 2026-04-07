@@ -159,10 +159,6 @@ export declare class NodeRepr {
   lookupPrefix(namespace: string): string | null
   /** Compares the position of the current node against another node in any other document. */
   compareDocumentPosition(other: NodeRepr): number
-  /** Selects the first element that matches the specified selector string. */
-  select(selectors: string): NodeRepr | null
-  /** Selects all elements that match the specified selector string. */
-  selectAll(selectors: string): Array<NodeRepr>
   /** Returns the value of a specified attribute on the element. */
   getAttribute(name: string): string | null
   /** Returns the attribute names of the element as an Array of strings. */
@@ -171,12 +167,6 @@ export declare class NodeRepr {
   hasAttributes(): boolean
   /** Returns a boolean value indicating whether the current Node has any child nodes. */
   hasChildNodes(): boolean
-  /** Returns the HTML serialization of the element and its descendants. */
-  outerHtml(): string
-  /** Returns the HTML serialization of the element's descendants. */
-  innerHtml(): string
-  /** Returns the text content of the node and its descendants. */
-  text(): string
   /** Returns the first Element within the document that matches the specified selector, or group of selectors. */
   querySelector(selectors: string): NodeRepr | null
   /** Returns a static (not live) NodeList representing a list of the document's elements that match the specified group of selectors. */
@@ -213,10 +203,6 @@ export declare class NodeRepr {
   closest(selectors: string): NodeRepr | null
   /** The node object, cann't be instantiated in javascript. So call the constructor will throw an error. */
   constructor(): void
-  /** Clone this node to a new instance, not clone its descendants. */
-  cloneSelfOnly(): NodeRepr
-  /** Clone this node to a new instance, including its all descendants. */
-  cloneRecursive(): NodeRepr
   /**
    * Clone this node to a new instance.
    * If `deep` is true, clone its all descendants.

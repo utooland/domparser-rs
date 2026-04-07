@@ -2,23 +2,6 @@ use super::NodeRepr;
 
 #[napi]
 impl NodeRepr {
-  /// Selects the first element that matches the specified selector string.
-  #[napi]
-  pub fn select(&self, selectors: String) -> Option<NodeRepr> {
-    self.0.select(selectors).map(NodeRepr)
-  }
-
-  /// Selects all elements that match the specified selector string.
-  #[napi]
-  pub fn select_all(&self, selectors: String) -> Vec<NodeRepr> {
-    self
-      .0
-      .select_all(selectors)
-      .into_iter()
-      .map(NodeRepr)
-      .collect()
-  }
-
   /// Returns the value of a specified attribute on the element.
   #[napi]
   pub fn get_attribute(&self, name: String) -> Option<String> {
@@ -41,24 +24,6 @@ impl NodeRepr {
   #[napi(js_name = "hasChildNodes")]
   pub fn has_child_nodes(&self) -> bool {
     self.0.has_child_nodes()
-  }
-
-  /// Returns the HTML serialization of the element and its descendants.
-  #[napi]
-  pub fn outer_html(&self) -> String {
-    self.0.outer_html()
-  }
-
-  /// Returns the HTML serialization of the element's descendants.
-  #[napi]
-  pub fn inner_html(&self) -> String {
-    self.0.inner_html()
-  }
-
-  /// Returns the text content of the node and its descendants.
-  #[napi]
-  pub fn text(&self) -> String {
-    self.0.text()
   }
 
   /// Returns the first Element within the document that matches the specified selector, or group of selectors.

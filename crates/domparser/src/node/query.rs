@@ -1,6 +1,6 @@
 use crate::serializer::serialize_text_only;
 use html5ever::serialize::{self, serialize, SerializeOpts};
-use html5ever::{namespace_url, ns, LocalName};
+use html5ever::{ns, LocalName};
 use markup5ever_rcdom::{Handle, NodeData, SerializableHandle};
 use std::rc::Rc;
 

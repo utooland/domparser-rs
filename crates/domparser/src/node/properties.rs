@@ -2,7 +2,7 @@ use super::DomNode;
 use html5ever::parse_fragment;
 use html5ever::serialize::{serialize, SerializeOpts, TraversalScope};
 use html5ever::tendril::TendrilSink;
-use html5ever::{local_name, namespace_url, ns, QualName};
+use html5ever::{local_name, ns, QualName};
 use markup5ever_rcdom::{Handle, Node, NodeData, RcDom, SerializableHandle};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -343,6 +343,7 @@ impl DomNode {
       Default::default(),
       context_name.clone(),
       vec![],
+      false,
     )
     .from_utf8()
     .read_from(&mut html.as_bytes())
@@ -445,10 +446,16 @@ impl DomNode {
         _ => QualName::new(None, ns!(html), local_name!("body")),
       };
 
-      let dom = parse_fragment(RcDom::default(), Default::default(), context_name, vec![])
-        .from_utf8()
-        .read_from(&mut html.as_bytes())
-        .unwrap();
+      let dom = parse_fragment(
+        RcDom::default(),
+        Default::default(),
+        context_name,
+        vec![],
+        false,
+      )
+      .from_utf8()
+      .read_from(&mut html.as_bytes())
+      .unwrap();
 
       let mut parent_children = parent.children.borrow_mut();
       if let Some(pos) = parent_children.iter().position(|x| Rc::ptr_eq(x, &self.0)) {
@@ -643,6 +650,7 @@ impl DomNode {
       Default::default(),
       context_name.clone(),
       vec![],
+      false,
     )
     .from_utf8()
     .read_from(&mut html.as_bytes())

@@ -1,6 +1,6 @@
 {
   "name": "domparser-rs",
-  "version": "0.0.7",
+  "version": "0.0.0",
   "packageManager": "yarn@4.3.1",
   "main": "domparser.js",
   "types": "domparser.d.ts",
@@ -61,7 +61,6 @@
     "postbuild": "node scripts/postbuild.js",
     "build:debug": "napi build --platform --package domparser_napi --js index.js && node scripts/postbuild.js",
     "prepublishOnly": "napi prepublish -t npm",
-    "version": "napi version && node scripts/sync-version.js && cargo check && git add crates/domparser/Cargo.toml Cargo.lock",
     "test": "node --test",
     "benchmark": "node ./benchmark/benchmark.mjs",
     "prepare": "husky install"
@@ -69,13 +68,13 @@
   "repository": "https://github.com/utooland/domparser-rs",
   "description": "A super fast html parser and manipulator written in rust.",
   "optionalDependencies": {
-    "domparser-darwin-arm64": "0.0.1",
-    "domparser-darwin-x64": "0.0.1",
-    "domparser-linux-arm64-gnu": "0.0.1",
-    "domparser-linux-arm64-musl": "0.0.1",
-    "domparser-linux-x64-gnu": "0.0.1",
-    "domparser-linux-x64-musl": "0.0.1",
-    "domparser-win32-arm64-msvc": "0.0.1",
-    "domparser-win32-x64-msvc": "0.0.1"
+    "domparser-darwin-arm64": "0.0.0",
+    "domparser-darwin-x64": "0.0.0",
+    "domparser-linux-arm64-gnu": "0.0.0",
+    "domparser-linux-arm64-musl": "0.0.0",
+    "domparser-linux-x64-gnu": "0.0.0",
+    "domparser-linux-x64-musl": "0.0.0",
+    "domparser-win32-arm64-msvc": "0.0.0",
+    "domparser-win32-x64-msvc": "0.0.0"
   }
 }

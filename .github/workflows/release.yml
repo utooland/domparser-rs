@@ -1,4 +1,4 @@
-name: CI
+name: Release
 env:
   DEBUG: napi:*
   APP_NAME: "domparser-rs"
@@ -7,42 +7,11 @@ permissions:
   contents: write
   id-token: write
 "on":
-  push:
-    branches:
-      - main
-    tags-ignore:
-      - "**"
-    paths-ignore:
-      - "**/*.md"
-      - LICENSE
-      - "**/*.gitignore"
-      - .editorconfig
-      - docs/**
-  pull_request: null
-jobs:
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          components: clippy
-      - name: Cache cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            .cargo-cache
-            target/
-          key: clippy-cargo-${{ runner.os }}
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+  release:
+    types:
+      - published
 
+jobs:
   build:
     strategy:
       fail-fast: false
@@ -111,7 +80,7 @@ jobs:
             build: |
               rustup target add aarch64-pc-windows-msvc &&
               yarn build --target aarch64-pc-windows-msvc
-    name: stable - ${{ matrix.settings.target }} - node@20
+    name: Build - ${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
@@ -168,8 +137,9 @@ jobs:
           name: bindings-${{ matrix.settings.target }}
           path: domparser.*.node
           if-no-files-found: error
+
   test-macOS-windows-binding:
-    name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
+    name: Test - ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
       - build
     strategy:
@@ -199,13 +169,11 @@ jobs:
         with:
           name: bindings-${{ matrix.settings.target }}
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
       - name: Test bindings
         run: yarn test
+
   test-linux-x64-gnu-binding:
-    name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
+    name: Test - Linux-x64-gnu - node@${{ matrix.node }}
     needs:
       - build
     strategy:
@@ -228,13 +196,11 @@ jobs:
         with:
           name: bindings-x86_64-unknown-linux-gnu
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
       - name: Test bindings
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
+
   test-linux-x64-musl-binding:
-    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
+    name: Test - x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
       - build
     strategy:
@@ -259,13 +225,11 @@ jobs:
         with:
           name: bindings-x86_64-unknown-linux-musl
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
       - name: Test bindings
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+
   test-linux-aarch64-gnu-binding:
-    name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
+    name: Test - aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
       - build
     strategy:
@@ -281,9 +245,6 @@ jobs:
         with:
           name: bindings-aarch64-unknown-linux-gnu
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
       - name: Install dependencies
         run: |
           yarn config set supportedArchitectures.cpu "arm64"
@@ -294,16 +255,17 @@ jobs:
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
+      - name: Test bindings
         run: |
           docker run --rm \
             --platform linux/arm64 \
             -v ${{ github.workspace }}:/build \
             -w /build \
             node:${{ matrix.node }}-slim \
-            /bin/sh -c "set -e && yarn test && ls -la"
+            /bin/sh -c "set -e && yarn test"
+
   test-linux-aarch64-musl-binding:
-    name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
+    name: Test - aarch64-unknown-linux-musl
     needs:
       - build
     runs-on: ubuntu-latest
@@ -314,9 +276,6 @@ jobs:
         with:
           name: bindings-aarch64-unknown-linux-musl
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
       - name: Install dependencies
         run: |
           yarn config set supportedArchitectures.cpu "arm64"
@@ -327,7 +286,7 @@ jobs:
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
+      - name: Test bindings
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -335,8 +294,9 @@ jobs:
             -w /build \
             node:lts-alpine \
             /bin/sh -c "set -e && yarn test"
+
   publish:
-    name: Publish
+    name: Publish to npm
     runs-on: ubuntu-latest
     needs:
       - test-macOS-windows-binding
@@ -353,6 +313,20 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn install
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          # Strip leading 'v' if present
+          VERSION="${TAG_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+      - name: Sync version to manifests
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          npm version $VERSION --no-git-tag-version
+          npx napi version
+          sed -i 's/^version\s*=\s*".*"/version = "'$VERSION'"/' crates/domparser/Cargo.toml
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -362,22 +336,25 @@ jobs:
       - name: List packages
         run: ls -R ./npm
         shell: bash
-      - name: Publish
+      - name: Publish to npm
         run: |
           npm config set provenance true
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          # Determine npm tag: prerelease versions get "next", stable gets "latest"
+          if echo "$TAG_NAME" | grep -qE "^v?[0-9]+\.[0-9]+\.[0-9]+$"; then
+            echo "Publishing stable release: $TAG_NAME"
             npm publish --access public --provenance
-            cargo publish -p domparser --token $CARGO_REGISTRY_TOKEN
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public --provenance
           else
-            echo "Not a release, skipping publish"
+            echo "Publishing prerelease: $TAG_NAME"
+            npm publish --tag next --access public --provenance
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to crates.io
+        run: cargo publish -p domparser --token $CARGO_REGISTRY_TOKEN
+        env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        continue-on-error: true
+

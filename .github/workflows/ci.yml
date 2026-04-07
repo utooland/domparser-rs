@@ -1,0 +1,336 @@
+name: CI
+env:
+  DEBUG: napi:*
+  APP_NAME: "domparser-rs"
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
+permissions:
+  contents: read
+"on":
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - "**"
+    paths-ignore:
+      - "**/*.md"
+      - LICENSE
+      - "**/*.gitignore"
+      - .editorconfig
+      - docs/**
+  pull_request: null
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: clippy
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            .cargo-cache
+            target/
+          key: clippy-cargo-${{ runner.os }}
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: macos-15-intel
+            target: x86_64-apple-darwin
+            build: yarn build --target x86_64-apple-darwin
+          - host: windows-latest
+            build: yarn build --target x86_64-pc-windows-msvc
+            target: x86_64-pc-windows-msvc
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
+            build: |
+              apt-get update && apt-get install -y curl &&
+              apt-get remove -y nodejs &&
+              curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &&
+              apt-get install -y nodejs &&
+              node -v &&
+              npm install -g yarn --force &&
+              rustup update stable &&
+              yarn build --target x86_64-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            build: |
+              rm -f /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx &&
+              apk add --upgrade --no-cache curl nodejs npm --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main &&
+              node -v &&
+              npm install -g yarn --force &&
+              yarn config set nodeLinker node-modules &&
+              rustup update stable &&
+              yarn build --target x86_64-unknown-linux-musl
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            build: yarn build --target aarch64-apple-darwin
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+            build: |
+              apt-get update && apt-get install -y curl &&
+              apt-get remove -y nodejs &&
+              curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &&
+              apt-get install -y nodejs &&
+              node -v &&
+              npm install -g yarn --force &&
+              rustup update stable &&
+              rustup target add aarch64-unknown-linux-gnu &&
+              yarn build --target aarch64-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            build: |-
+              set -e &&
+              rm -f /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx &&
+              apk add --upgrade --no-cache curl nodejs npm --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main &&
+              node -v &&
+              npm install -g yarn --force &&
+              yarn config set nodeLinker node-modules &&
+              rustup update stable &&
+              rustup target add aarch64-unknown-linux-musl &&
+              yarn build --target aarch64-unknown-linux-musl
+          - host: windows-latest
+            target: aarch64-pc-windows-msvc
+            build: |
+              rustup target add aarch64-pc-windows-msvc &&
+              yarn build --target aarch64-pc-windows-msvc
+    name: stable - ${{ matrix.settings.target }} - node@20
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        if: ${{ !matrix.settings.docker }}
+        with:
+          node-version: 20
+          cache: yarn
+      - name: Install
+        uses: dtolnay/rust-toolchain@stable
+        if: ${{ !matrix.settings.docker }}
+        with:
+          toolchain: stable
+          targets: ${{ matrix.settings.target }}
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            .cargo-cache
+            target/
+          key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+      - name: Setup toolchain
+        run: ${{ matrix.settings.setup }}
+        if: ${{ matrix.settings.setup }}
+        shell: bash
+      - name: Install dependencies
+        run: yarn install
+      - name: Build in docker
+        if: ${{ matrix.settings.docker }}
+        run: |
+          docker run --rm \
+            --user 0:0 \
+            -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db \
+            -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache \
+            -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            ${{ matrix.settings.docker }} \
+            /bin/sh -c "${{ matrix.settings.build }}"
+      - name: Build
+        run: ${{ matrix.settings.build }}
+        if: ${{ !matrix.settings.docker }}
+        shell: bash
+      - name: Move artifact
+        run: mv crates/domparser_napi/domparser.*.node .
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: domparser.*.node
+          if-no-files-found: error
+  test-macOS-windows-binding:
+    name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+          - host: macos-15-intel
+            target: x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
+        node:
+          - "20"
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Test bindings
+        run: yarn test
+  test-linux-x64-gnu-binding:
+    name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "20"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-x86_64-unknown-linux-gnu
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Test bindings
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
+  test-linux-x64-musl-binding:
+    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "20"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-x86_64-unknown-linux-musl
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Test bindings
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+  test-linux-aarch64-gnu-binding:
+    name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "20"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-aarch64-unknown-linux-gnu
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "glibc"
+          yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Setup and run tests
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            node:${{ matrix.node }}-slim \
+            /bin/sh -c "set -e && yarn test && ls -la"
+  test-linux-aarch64-musl-binding:
+    name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-aarch64-unknown-linux-musl
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Setup and run tests
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            node:lts-alpine \
+            /bin/sh -c "set -e && yarn test"

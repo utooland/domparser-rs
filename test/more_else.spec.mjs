@@ -2,7 +2,7 @@
 import { describe, it } from 'node:test';
 import { strict as assert } from 'node:assert';
 import pkg from '../domparser.js';
-const { DOMParser, NodeRepr } = pkg;
+const { DOMParser } = pkg;
 
 describe('More Else APIs', () => {
   it('should support insertBefore', () => {

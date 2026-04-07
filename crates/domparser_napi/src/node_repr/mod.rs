@@ -23,20 +23,6 @@ impl NodeRepr {
     unreachable!()
   }
 
-  /// Clone this node to a new instance, not clone its descendants.
-  ///
-  #[napi]
-  pub fn clone_self_only(&self) -> NodeRepr {
-    NodeRepr(self.0.clone_self_only())
-  }
-
-  /// Clone this node to a new instance, including its all descendants.
-  ///
-  #[napi]
-  pub fn clone_recursive(&self) -> NodeRepr {
-    NodeRepr(self.0.clone_recursive())
-  }
-
   /// Clone this node to a new instance.
   /// If `deep` is true, clone its all descendants.
   /// If `deep` is false, only clone this node.

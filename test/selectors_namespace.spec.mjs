@@ -208,6 +208,59 @@ test('isDefaultNamespace', () => {
   assert.strictEqual(child.isDefaultNamespace(''), true);
   assert.strictEqual(child.isDefaultNamespace('http://example.com/ns'), false);
 
-  // grandchild inherits from child (empty namespace)
   assert.strictEqual(grandchild.isDefaultNamespace(''), true);
+});
+
+test('querySelectorAll with attributes combined', () => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`
+    <div>
+      <script src="app.js"></script>
+      <script></script>
+      <script defer src="analytics.js"></script>
+      <div id="main" class="container"></div>
+      <p class="text" data-id="123"></p>
+      <a href="https://example.com">Link</a>
+    </div>
+  `, 'text/html');
+
+  assert.strictEqual(doc.querySelectorAll('script[src]').length, 2);
+  assert.strictEqual(doc.querySelectorAll('script[defer]').length, 1);
+  assert.strictEqual(doc.querySelectorAll('div#main.container').length, 1);
+  assert.strictEqual(doc.querySelectorAll('p.text[data-id="123"]').length, 1);
+  assert.strictEqual(doc.querySelectorAll('a[href^="https"]').length, 1);
+  assert.strictEqual(doc.querySelectorAll('script:not([defer])').length, 2);
+});
+
+test('querySelector with advanced pseudo-classes and combinators', () => {
+  const doc = new DOMParser().parseFromString(`
+    <ul id="list">
+      <li>Item 1</li>
+      <li class="active">Item 2</li>
+      <li>Item 3</li>
+      <li>Item 4</li>
+    </ul>
+    <div id="sibling-test">
+      <h2>Heading</h2>
+      <p>Paragraph 1</p>
+      <p>Paragraph 2</p>
+      <span>Span</span>
+    </div>
+  `, 'text/html');
+
+  // :first-child / :last-child
+  assert.strictEqual(doc.querySelector('#list li:first-child').textContent, 'Item 1');
+  assert.strictEqual(doc.querySelector('#list li:last-child').textContent, 'Item 4');
+  
+  // :nth-child
+  assert.strictEqual(doc.querySelector('#list li:nth-child(2)').textContent, 'Item 2');
+  assert.strictEqual(doc.querySelectorAll('#list li:nth-child(odd)').length, 2);
+
+  // adjacent sibling combinator (+)
+  assert.strictEqual(doc.querySelector('.active + li').textContent, 'Item 3');
+  assert.strictEqual(doc.querySelector('h2 + p').textContent, 'Paragraph 1');
+
+  // general sibling combinator (~)
+  assert.strictEqual(doc.querySelectorAll('h2 ~ p').length, 2);
+  assert.strictEqual(doc.querySelectorAll('h2 ~ span').length, 1);
 });

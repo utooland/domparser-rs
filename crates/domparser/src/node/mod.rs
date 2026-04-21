@@ -15,6 +15,7 @@ pub(crate) fn get_parent(node: &Handle) -> Option<Handle> {
 
 #[derive(Clone)]
 /// A wrapper for `markup5ever_rcdom::Handle`
+#[derive(Debug)]
 pub struct DomNode(pub Handle);
 
 impl From<Handle> for DomNode {
@@ -101,3 +102,4 @@ fn clone_handle_recursive(handle: &Handle) -> Handle {
   }
   new_node
 }
+pub mod selectors;

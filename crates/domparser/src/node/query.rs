@@ -4,7 +4,13 @@ use html5ever::{ns, LocalName};
 use markup5ever_rcdom::{Handle, NodeData, SerializableHandle};
 use std::rc::Rc;
 
+use super::selectors::{parse_selectors, DomParserSelectors};
 use super::DomNode;
+use selectors::matching::{
+  matches_selector_list, MatchingContext, MatchingForInvalidation, MatchingMode,
+  NeedsSelectorFlags, QuirksMode, SelectorCaches,
+};
+use selectors::SelectorList;
 
 impl DomNode {
   pub fn get_attribute(&self, name: String) -> Option<String> {
@@ -101,34 +107,85 @@ impl DomNode {
   }
 
   pub fn query_selector(&self, selectors: String) -> Option<DomNode> {
-    fn find(node: &DomNode, selectors: &str) -> Option<DomNode> {
-      for child in node.0.children.borrow().iter() {
-        let child_dom = DomNode(child.clone());
-        if child_dom.matches(selectors.to_string()) {
-          return Some(child_dom);
+    if let Some(list) = parse_selectors(&selectors) {
+      let mut cache = SelectorCaches::default();
+      let mut ctx = MatchingContext::new(
+        MatchingMode::Normal,
+        None,
+        &mut cache,
+        QuirksMode::NoQuirks,
+        NeedsSelectorFlags::No,
+        MatchingForInvalidation::No,
+      );
+
+      fn find(
+        node: &DomNode,
+        list: &SelectorList<DomParserSelectors>,
+        ctx: &mut MatchingContext<DomParserSelectors>,
+      ) -> Option<DomNode> {
+        if matches!(node.0.data, NodeData::Element { .. }) && matches_selector_list(list, node, ctx)
+        {
+          return Some(node.clone());
         }
-        if let Some(found) = find(&child_dom, selectors) {
-          return Some(found);
+        for child in node.0.children.borrow().iter() {
+          if true {
+            if let Some(found) = find(&DomNode(child.clone()), list, ctx) {
+              return Some(found);
+            }
+          }
+        }
+        None
+      }
+
+      for child in self.0.children.borrow().iter() {
+        if true {
+          if let Some(found) = find(&DomNode(child.clone()), &list, &mut ctx) {
+            return Some(found);
+          }
         }
       }
-      None
     }
-    find(self, &selectors)
+    None
   }
 
   pub fn query_selector_all(&self, selectors: String) -> Vec<DomNode> {
-    fn find_all(node: &DomNode, selectors: &str, results: &mut Vec<DomNode>) {
-      for child in node.0.children.borrow().iter() {
-        let child_dom = DomNode(child.clone());
-        if child_dom.matches(selectors.to_string()) {
-          results.push(child_dom.clone());
+    if let Some(list) = parse_selectors(&selectors) {
+      let mut cache = SelectorCaches::default();
+      let mut ctx = MatchingContext::new(
+        MatchingMode::Normal,
+        None,
+        &mut cache,
+        QuirksMode::NoQuirks,
+        NeedsSelectorFlags::No,
+        MatchingForInvalidation::No,
+      );
+
+      fn find_all(
+        node: &DomNode,
+        list: &SelectorList<DomParserSelectors>,
+        ctx: &mut MatchingContext<DomParserSelectors>,
+        results: &mut Vec<DomNode>,
+      ) {
+        if matches!(node.0.data, NodeData::Element { .. }) && matches_selector_list(list, node, ctx)
+        {
+          results.push(node.clone());
         }
-        find_all(&child_dom, selectors, results);
+        for child in node.0.children.borrow().iter() {
+          if true {
+            find_all(&DomNode(child.clone()), list, ctx, results);
+          }
+        }
       }
+
+      let mut results = Vec::new();
+      for child in self.0.children.borrow().iter() {
+        if true {
+          find_all(&DomNode(child.clone()), &list, &mut ctx, &mut results);
+        }
+      }
+      return results;
     }
-    let mut results = Vec::new();
-    find_all(self, &selectors, &mut results);
-    results
+    Vec::new()
   }
 
   pub fn has_attribute(&self, name: String) -> bool {
@@ -334,141 +391,46 @@ impl DomNode {
     }
   }
 
-  fn matches_simple_selector(&self, selector: &str) -> bool {
-    if selector == "*" {
-      if let NodeData::Element { .. } = &self.0.data {
-        return true;
-      }
-      return false;
-    }
-    if let Some(id) = selector.strip_prefix('#') {
-      return self.get_attribute("id".to_string()).as_deref() == Some(id);
-    }
-    if let Some(class) = selector.strip_prefix('.') {
-      if let Some(cls) = self.get_attribute("class".to_string()) {
-        return cls.split_whitespace().any(|c| c == class);
-      }
-      return false;
-    }
-    // Tag name
-    if let NodeData::Element { name, .. } = &self.0.data {
-      return name.local.to_string().eq_ignore_ascii_case(selector);
-    }
-    false
-  }
+  pub fn closest(&self, selectors: String) -> Option<DomNode> {
+    if let Some(list) = parse_selectors(&selectors) {
+      let mut cache = SelectorCaches::default();
+      let mut ctx = MatchingContext::new(
+        MatchingMode::Normal,
+        None,
+        &mut cache,
+        QuirksMode::NoQuirks,
+        NeedsSelectorFlags::No,
+        MatchingForInvalidation::No,
+      );
 
-  /// Tokenize a CSS selector into (simple_selector, combinator) segments.
-  /// Supported combinators: ' ' (descendant) and '>' (child).
-  /// Returns a list of (selector, combinator) pairs, where combinator is either
-  /// ' ' or '>', read right-to-left.
-  fn tokenize_selector(selectors: &str) -> Vec<(&str, char)> {
-    let mut tokens: Vec<(&str, char)> = Vec::new();
-    let mut rest = selectors.trim();
-
-    loop {
-      if rest.is_empty() {
-        break;
-      }
-
-      // Find the last combinator (> or whitespace)
-      let mut split_pos = None;
-      let mut combinator = ' ';
-      let bytes = rest.as_bytes();
-      let mut i = bytes.len();
-
-      // Walk backwards to find the rightmost combinator
-      while i > 0 {
-        i -= 1;
-        if bytes[i] == b'>' {
-          split_pos = Some(i);
-          combinator = '>';
-          break;
-        } else if bytes[i] == b' ' || bytes[i] == b'\t' {
-          // Check if this is a space combinator (not next to >)
-          let left = rest[..i].trim_end();
-          let right = rest[i + 1..].trim_start();
-          if !left.is_empty()
-            && !right.is_empty()
-            && !left.ends_with('>')
-            && !right.starts_with('>')
-          {
-            split_pos = Some(i);
-            combinator = ' ';
-            break;
-          }
+      let mut current = Some(self.clone());
+      while let Some(node) = current {
+        if matches!(node.0.data, NodeData::Element { .. })
+          && matches_selector_list(&list, &node, &mut ctx)
+        {
+          return Some(node.clone());
         }
-      }
-
-      match split_pos {
-        Some(pos) => {
-          let selector = rest[pos + 1..].trim();
-          if !selector.is_empty() {
-            tokens.push((selector, combinator));
-          }
-          rest = rest[..pos].trim();
-        }
-        None => {
-          // No more combinators; this is the leftmost selector
-          tokens.push((rest, ' '));
-          break;
-        }
+        current = super::get_parent(&node.0).map(DomNode);
       }
     }
-
-    tokens
+    None
   }
 
   pub fn matches(&self, selectors: String) -> bool {
-    let selectors = selectors.trim();
-    let tokens = Self::tokenize_selector(selectors);
-
-    if tokens.is_empty() {
-      return false;
-    }
-
-    // tokens[0] is the rightmost (target) selector
-    if !self.matches_simple_selector(tokens[0].0) {
-      return false;
-    }
-
-    if tokens.len() == 1 {
-      return true;
-    }
-
-    let mut current_ancestor = super::get_parent(&self.0).map(DomNode);
-    let mut token_idx = 1;
-    // The combinator that constrains the relationship is from the token
-    // we just matched (the right/child side), not the next token to match.
-    let mut active_combinator = tokens[0].1;
-
-    while let Some(node) = current_ancestor {
-      let (selector, _) = tokens[token_idx];
-
-      if node.matches_simple_selector(selector) {
-        token_idx += 1;
-        if token_idx >= tokens.len() {
-          return true;
-        }
-        active_combinator = tokens[token_idx - 1].1;
-      } else if active_combinator == '>' {
-        // Child combinator requires direct parent match; it didn't match
-        return false;
+    if let Some(list) = parse_selectors(&selectors) {
+      let mut cache = SelectorCaches::default();
+      let mut ctx = MatchingContext::new(
+        MatchingMode::Normal,
+        None,
+        &mut cache,
+        QuirksMode::NoQuirks,
+        NeedsSelectorFlags::No,
+        MatchingForInvalidation::No,
+      );
+      if matches!(self.0.data, NodeData::Element { .. }) {
+        return matches_selector_list(&list, self, &mut ctx);
       }
-      // For descendant combinator (' '), keep walking up
-      current_ancestor = super::get_parent(&node.0).map(DomNode);
     }
-
     false
-  }
-
-  pub fn closest(&self, selectors: String) -> Option<DomNode> {
-    let mut current = Some(DomNode(self.0.clone()));
-    while let Some(node) = current {
-      if node.matches(selectors.clone()) {
-        return Some(node);
-      }
-      current = super::get_parent(&node.0).map(DomNode);
-    }
-    None
   }
 }

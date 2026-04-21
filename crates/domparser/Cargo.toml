@@ -7,8 +7,11 @@ license     = "MIT"
 repository  = "https://github.com/utooland/domparser-rs"
 
 [dependencies]
+cssparser = "0.36"
 html5ever         = "0.38.0"
 indexmap          = "2.13.1"
 markup5ever       = "0.38.0"
 markup5ever_rcdom = "0.38.0"
+precomputed-hash = "0.1"
+selectors         = "0.37.0"
 tendril           = "0.5.0"
